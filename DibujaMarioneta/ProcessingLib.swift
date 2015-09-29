@@ -12,6 +12,8 @@ import Darwin
 
 
 typealias Rect = (Int, Int, Int, Int)
+typealias Point = (Int, Int)
+
 
 extension UIColor
 {
@@ -65,9 +67,22 @@ func line(start: CGPoint, end: CGPoint, width: CGFloat = 0) {
     path.stroke()
 }
 
+//Otra forma de dibujar línea
+//Usar éste otro:
+func line(rect:Rect,width:CGFloat){
+    let context = UIGraphicsGetCurrentContext()
+    CGContextSetLineWidth(context, 2.0)
+    CGContextSetStrokeColorWithColor(context, UIColor.redColor().CGColor)
+    CGContextMoveToPoint(context, CGFloat(rect.0), CGFloat(rect.1))
+    CGContextAddLineToPoint(context, CGFloat(rect.2), CGFloat(rect.3))
+}
+
+
+
+
 // CASOS RECT: 1) STROKE ONLY; 2) FILL ONLY; 3) FILL & STROKE; +4) ROUND RECT?
 
-func rectangle( rect: CGRect, width: CGFloat = 0, radius: CGFloat = 0 ) { // Stroke only
+func rectangle( rect: Rect, width: CGFloat = 0, radius: CGFloat = 0 ) { // Stroke only
     let path = radius > 0 ?
         UIBezierPath( roundedRect: rect, cornerRadius: radius ) :
         UIBezierPath( rect: rect )
@@ -77,32 +92,41 @@ func rectangle( rect: CGRect, width: CGFloat = 0, radius: CGFloat = 0 ) { // Str
     path.stroke()
 }
 
-func rectangleFill( rect: CGRect, fill: UIColor = UIColor.blackColor(), width: CGFloat = 0, radius: CGFloat = 0 ) { // Fill & stroke?
+// Se usa este código para dibujar un rectángulo normal
+func rectangle (rect: Rect){
+    let context=UIGraphicsGetCurrentContext()
+    CGContextSetLineWidh(Context,2.0)
+    CGContextSetStrokeColorWithColor(context, UIColor.redColor().CGColor)
+    Let rectan = CGRectMake(CGFloat(rect.0), CGFloat(rect.1) , CGFloat(rect.2), CGFloat(rect.3))
+    CGContextAddRect(context,rectan)
+}
+
+func rectangleFill( rect: Rect, fill: UIColor = UIColor.blackColor(), width: CGFloat = 0, radius: CGFloat = 0 ) { // Fill & stroke?
     let path = radius > 0 ?
-        UIBezierPath( roundedRect: rect, cornerRadius: radius ) :
-        UIBezierPath( rect: rect )
+    UIBezierPath( roundedRect: CGRectMake(CGFloat(rect.0), CGFloat(rect.1), CGFloat(rect.2), CGFloat(rect.3)), cornerRadius: radius ) :
+    UIBezierPath( rect: rect )
     if width > 0 {
-        path.lineWidth = width
-        path.stroke()
+    path.lineWidth = width
+    path.stroke()
     }
     fill.setFill()
     path.fill()
 }
 
 
-func ellipse( rect: CGRect, width: CGFloat = 0 ) {
-    let path = UIBezierPath( ovalInRect: rect )
+func ellipse( rect: Rect, width: CGFloat = 0 ) {
+    let path = UIBezierPath(ovalInRect: CGRectMake(CGFloat(rect.0), CGFloat(rect.1), CGFloat(rect.2), CGFloat(rect.3)))
     if width > 0 {
-        path.lineWidth = width
+    path.lineWidth = width
     }
     path.stroke()
 }
 
-func ellipseFill( rect: CGRect, fill: UIColor = UIColor.blackColor(), width: CGFloat = 0 ) {
-    let path = UIBezierPath( ovalInRect: rect )
+func ellipseFill( rect: Rect, fill: UIColor = UIColor.blackColor(), width: CGFloat = 0 ) {
+    let path = UIBezierPath(ovalInRect: CGRectMake(CGFloat(rect.0), CGFloat(rect.1), CGFloat(rect.2), CGFloat(rect.3)))
     if width > 0 {
-        path.lineWidth = width
-        path.stroke()
+    path.lineWidth = width
+    path.stroke()
     }
     fill.setFill()
     path.fill()
@@ -111,21 +135,21 @@ func ellipseFill( rect: CGRect, fill: UIColor = UIColor.blackColor(), width: CGF
 func ellipseFill( rect: Rect, _ fill: UIColor = UIColor.blackColor(), _ width: CGFloat = 0 ) {
     let path = UIBezierPath( ovalInRect: CGRectMake(CGFloat(rect.0), CGFloat(rect.1), CGFloat(rect.2), CGFloat(rect.3)) )
     if width > 0 {
-        path.lineWidth = width
-        path.stroke()
+    path.lineWidth = width
+    path.stroke()
     }
     fill.setFill()
     path.fill()
 }
 
-func poly( points: [CGPoint], /*at:CGPoint? = nil,*/ width: CGFloat = 0 ) {
+func poly( points: [Point], /*at:CGPoint? = nil,*/ width: CGFloat = 0 ) {
     let path = UIBezierPath()
-//    path.lineCapStyle = kCGLineCapRound
-//    path.lineJoinStyle = kCGLineJoinRound // kCGLineJoinBevel
+    //    path.lineCapStyle = kCGLineCapRound
+    //    path.lineJoinStyle = kCGLineJoinRound // kCGLineJoinBevel
     //    path.miterLimit = 60
     path.moveToPoint(points[0])
     for var i=1; i < points.count; i++ {
-        path.addLineToPoint(points[i])
+    path.addLineToPoint(points[i])
     }
     /*
     if let p = at {
@@ -133,18 +157,18 @@ func poly( points: [CGPoint], /*at:CGPoint? = nil,*/ width: CGFloat = 0 ) {
     }
     */
     if width > 0 {
-        path.lineWidth = width
+    path.lineWidth = width
     }
     path.stroke()
 }
 
-func polyFill( points: [CGPoint], fill: UIColor = UIColor.blackColor() ) {
+func polyFill( points: [Point], fill: UIColor = UIColor.blackColor() ) {
     let path = UIBezierPath()
-//    path.lineCapStyle = kCGLineCapRound
-//    path.lineJoinStyle = kCGLineJoinRound // kCGLineJoinBevel
+    //    path.lineCapStyle = kCGLineCapRound
+    //    path.lineJoinStyle = kCGLineJoinRound // kCGLineJoinBevel
     path.moveToPoint(points[0])
     for var i=1; i < points.count; i++ {
-        path.addLineToPoint(points[i])
+    path.addLineToPoint(points[i])
     }
     path.closePath()
     fill.setFill()
@@ -152,12 +176,12 @@ func polyFill( points: [CGPoint], fill: UIColor = UIColor.blackColor() ) {
 }
 
 
-func arc( center: CGPoint, radius: CGFloat, width: CGFloat = 0 ) {
+func arc( center: Point, radius: CGFloat, width: CGFloat = 0 ) {
     let r = M_PI_4 / 2.0
     let path = UIBezierPath()
     path.addArcWithCenter(center, radius: radius, startAngle: CGFloat(r), endAngle: CGFloat(M_PI - r), clockwise: true)
     if width > 0 {
-        path.lineWidth = width
+    path.lineWidth = width
     }
     path.stroke()
 }
@@ -171,30 +195,38 @@ func arcFill( center: CGPoint, radius: CGFloat, fill: UIColor = UIColor.blackCol
 }
 
 
-func curve( points: [CGPoint], width: CGFloat = 0 ) {
+func arcFill( center: Point, radius: CGFloat, fill: UIColor = UIColor.blackColor() ) {
+    let r = M_PI_4 / 2.0
+    let path = UIBezierPath()
+    path.addArcWithCenter(center, radius: radius, startAngle: CGFloat(r), endAngle: CGFloat(M_PI - r), clockwise: true)
+    fill.setFill()
+    path.fill()
+}
+
+func curve( points: [Point], width: CGFloat = 0 ) {
     let path = UIBezierPath()
     //    path.flatness = 2
     path.moveToPoint(points[0])
     for var i=1; i < points.count-1; i += 2 {
-        path.addQuadCurveToPoint(points[i], controlPoint: points[i+1])
+    path.addQuadCurveToPoint(points[i], controlPoint: points[i+1])
     }
     if width > 0 {
-        path.lineWidth = width
+    path.lineWidth = width
     }
     path.stroke()
 }
 
-func curveFill( points: [CGPoint], fill: UIColor = UIColor.blackColor(), width: CGFloat = 0  ) {
+func curveFill( points: [Point], fill: UIColor = UIColor.blackColor(), width: CGFloat = 0  ) {
     let path = UIBezierPath()
     path.moveToPoint(points[0])
     for var i=1; i < points.count-1; i += 2 {
-        path.addQuadCurveToPoint(points[i], controlPoint: points[i+1])
+    path.addQuadCurveToPoint(points[i], controlPoint: points[i+1])
     }
     path.closePath()
     fill.setFill()
     path.fill()
     if width > 0 {
-        path.lineWidth = width
-        path.stroke()
+    path.lineWidth = width
+    path.stroke()
     }
 }
